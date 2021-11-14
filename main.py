@@ -43,7 +43,6 @@ def MarkComsic(img, row, col):
                 # 正中間的點不計算
                 if i == 0 and j == 0:
                     continue
-
                 if img[row+i, col+j] > center_value-5 or img[row+i, col+j] < center_value + 5:
                     same_color_point_count += 1
                 elif img[row+i, col+j] < center_value/2:
@@ -78,7 +77,6 @@ if __name__ == '__main__':
     # 開3x3檢測鏡
     # 判斷中間的灰階值是否幾乎等於白色，且與周遭的值差距很大(like > 210 or something)
     # 是的話就標記他的座標
-    # 回到普通圖片，從上往下從左到右把那個區塊用內插法磨掉(?)
     elif STEP == 3:
         la_edge_img = cv2.imread("./data_set/img_edge/"+filename, 0)
         counter = 0
@@ -86,8 +84,10 @@ if __name__ == '__main__':
             for j in range(1, img_cols-1):
                 markedImgMap[i, j] = MarkComsic(la_edge_img, i, j)
         # SaveImg("./data_set/img_output/"+filename, markedImgMap)
+    # step 4 回到普通圖片，從上往下從左到右把那個區塊用內插法磨掉
+    elif STEP == 4:
         # cv2.filter2D(img, -1, kernel)
-
+        print("回到普通圖片，從上往下從左到右把那個區塊用內插法磨掉")
     # # 二值化
     # ret, th1 = cv2.threshold(la_img, 127, 255, cv2.THRESH_BINARY)
 
