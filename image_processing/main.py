@@ -27,9 +27,10 @@ def NegativeFilm(row, col):
 
     return nagativeImg
 
-
 # 想避免雜訊的話，目前想法是如果周遭有2或3個鄰居的色差小於一定值或周遭的值直接黑掉，就當宇宙射線
 # 如果下方的點也有一些特徵 或許可以在markedMap做不同的標記
+
+
 def MarkComsic(img, row, col):
     center_value = img[row, col]
     same_color_point_count = 0
@@ -37,14 +38,19 @@ def MarkComsic(img, row, col):
     # 如果中心點是夠白的
     if center_value > 230:
         # 判定周遭有多少顏色類似的點, 且是否有落差極大的點
-        # 左上類似 elif 左上色差極大
-        if img[row-1, col-1] > center_value-5 or img[row-1, col-1] < center_value + 5:
-            same_color_point_count += 1
-        elif img[row-1, col-1] < center_value/2:
-            diff_color_point_count += 1
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                # 正中間的點不計算
+                if i == 0 and j == 0:
+                    continue
 
+                if img[row+i, col+j] > center_value-5 or img[row+i, col+j] < center_value + 5:
+                    same_color_point_count += 1
+                elif img[row+i, col+j] < center_value/2:
+                    diff_color_point_count += 1
         # 是宇宙射線
-        return 1
+        if same_color_point_count > 2 or diff_color_point_count > 3:
+            return 1
     # 不是宇宙射線
     return 0
 
@@ -79,8 +85,7 @@ if __name__ == '__main__':
         for i in range(1, img_rows-1):
             for j in range(1, img_cols-1):
                 markedImgMap[i, j] = MarkComsic(la_edge_img, i, j)
-        SaveImg("./data_set/img_output/"+filename, markedImgMap)
-
+        # SaveImg("./data_set/img_output/"+filename, markedImgMap)
         # cv2.filter2D(img, -1, kernel)
 
     # # 二值化
