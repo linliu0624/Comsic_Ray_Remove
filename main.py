@@ -59,7 +59,15 @@ def blurred(img, row, col):
     '''
     把指定像素模糊化
     '''
-    return 0
+    kernel = np.array([[2, 2, 2], 
+                       [2, 0, 1], 
+                       [1, 1, 1]])
+    value = np.array([[img[row-1, col-1], img[row-1, col], img[row-1, col+1]],
+                          [img[row, col-1], img[row, col], img[row, col+1]],
+                          [img[row+1, col-1], img[row+1, col], img[row+1, col+1]]])
+    print(np.sum(kernel*value/9))
+    # print(np.dot(kernel, value))
+    return 1
 
 
 if __name__ == '__main__':
@@ -100,7 +108,7 @@ if __name__ == '__main__':
                 if markedImgMap[i, j] == 1:
                     origin_image[i, j] = blurred(origin_image, i, j)
 
-        SaveImg("./data_set/img_output/"+"newImg.png", origin_image)
+        # SaveImg("./data_set/img_output/"+"newImg.png", origin_image)
 
     # # 二值化
     # ret, th1 = cv2.threshold(la_img, 127, 255, cv2.THRESH_BINARY)
