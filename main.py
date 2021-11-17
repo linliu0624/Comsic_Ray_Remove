@@ -27,11 +27,12 @@ def NegativeFilm(row, col):
 
     return nagativeImg
 
-# 想避免雜訊的話，目前想法是如果周遭有2或3個鄰居的色差小於一定值或周遭的值直接黑掉，就當宇宙射線
-# 如果下方的點也有一些特徵 或許可以在markedMap做不同的標記
-
 
 def MarkComsic(img, row, col):
+    '''
+    想避免雜訊的話，目前想法是如果周遭有2或3個鄰居的色差小於一定值或周遭的值直接黑掉，就當宇宙射線。 \n
+    如果下方的點也有一些特徵 或許可以在markedMap做不同的標記。
+    '''
     center_value = img[row, col]
     same_color_point_count = 0
     diff_color_point_count = 0
@@ -51,6 +52,13 @@ def MarkComsic(img, row, col):
         if same_color_point_count > 2 or diff_color_point_count > 3:
             return 1
     # 不是宇宙射線
+    return 0
+
+
+def blurred(img, row, col):
+    '''
+    把指定像素模糊化
+    '''
     return 0
 
 
@@ -85,9 +93,15 @@ if __name__ == '__main__':
                 markedImgMap[i, j] = MarkComsic(la_edge_img, i, j)
         # SaveImg("./data_set/img_output/"+filename, markedImgMap)
     # step 4 回到普通圖片，從上往下從左到右把那個區塊用內插法磨掉
-    elif STEP == 4:
         # cv2.filter2D(img, -1, kernel)
-        print("回到普通圖片，從上往下從左到右把那個區塊用內插法磨掉")
+        origin_image = cv2.imread("./data_set/img_with_cosmic/"+"data1.png")
+        for i in range(1, img_rows-1):
+            for j in range(1, img_cols-1):
+                if markedImgMap[i, j] == 1:
+                    origin_image[i, j] = blurred(origin_image, i, j)
+
+        SaveImg("./data_set/img_output/"+"newImg.png", origin_image)
+
     # # 二值化
     # ret, th1 = cv2.threshold(la_img, 127, 255, cv2.THRESH_BINARY)
 
