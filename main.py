@@ -75,7 +75,7 @@ def blurred(img, row, col, kernel=np.array([[1, 1, 1],
 
 
 # TODO: 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3 5=MODE1+MODE3
-MODE = 5
+MODE = 1
 input_path = "./data_set/img_with_cosmic/"
 output_path = "./data_set/img_output/"
 filename = "data1.png"
@@ -121,7 +121,7 @@ if __name__ == '__main__':
                     else:
                         img[i, j] = blurred(img, i, j)
         # ----- 成效不佳 -----
-        # 用[[2,2,2],[2,0,0],[0,0,0]]的過濾器來處理得到blur1, 對marked2再處理一次得到blur2, blur1比較好
+        # 用[[1,1,1],[1,0,0],[0,0,0]]的過濾器來處理得到blur1, 對marked2再處理一次得到blur2, blur1比較好
         #             # 之後再對2的部分做一是磨平
         #             if markedImgMap[i-1, j] != 1:
         #                 markedImgMap[i-1, j] = 2
