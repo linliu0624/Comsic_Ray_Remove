@@ -66,11 +66,11 @@ def blurred(img, row, col):
     return np.sum(np.floor(kernel/np.sum(kernel) * value))
 
 
-STEP = 3
+STEP = 1
 # 手動更改路徑
-input_path = "./data_set/img_edge/"
-output_path = "./data_set/img_edge/"
-filename = "data1.png"
+input_path = "./data_set/img_with_cosmic/"
+output_path = "./data_set/img_with_cosmic/"
+filename = "sample.png"
 
 if __name__ == '__main__':
     # input灰階圖片

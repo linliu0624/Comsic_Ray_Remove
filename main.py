@@ -6,13 +6,8 @@ import numpy as np
 # 拉普拉斯邊緣檢測負片
 # ----- step 3 -----
 # 檢測處理拉普拉斯檢測的負片，找出宇宙射線
-
-# TODO: 優化整個程式流程 變成只要執行一次就好 且過程不存圖(創新檔案)
-# 新想法是，每次跑完流程，就調低檢測宇宙射線的判斷閥值，再跑一次流程
-# 有機會可以去除乾淨
-# TODO: 或是取周圍最亮但mark不為1的點直接取值，或是運算時直接判斷周圍的點若為1就不給權重 也就是動態生成Kernel
-
-
+# ----- step 4 ----- 
+# 回到普通圖片，從上往下從左到右把那個區塊磨掉
 def SaveImg(image_name, img):
     cv2.imwrite(image_name, img)
 
@@ -74,11 +69,11 @@ def blurred(img, row, col, kernel=np.array([[1, 1, 1],
     return np.sum(np.floor(kernel/sum * value))
 
 
-# TODO: 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3 5=MODE1+MODE3
-MODE = 1
+# TODO: 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3
+MODE = 4
 input_path = "./data_set/img_with_cosmic/"
 output_path = "./data_set/img_output/"
-filename = "data1.png"
+filename = "sample.png"
 
 if __name__ == '__main__':
     if MODE < 3:
