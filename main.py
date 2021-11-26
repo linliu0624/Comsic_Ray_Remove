@@ -69,7 +69,7 @@ def blurred(img, row, col, kernel=np.array([[1, 1, 1],
     return np.sum(np.floor(kernel/sum * value))
 
 
-# TODO: 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3
+# 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3 
 MODE = 4
 input_path = "./data_set/img_with_cosmic/"
 output_path = "./data_set/img_output/"
