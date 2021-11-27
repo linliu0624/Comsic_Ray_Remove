@@ -1,13 +1,16 @@
 import cv2
 import numpy as np
+from numpy.core.fromnumeric import shape
 # ----- step 1 -----
 # 將有宇宙射線的圖片轉為負片
 # ----- step 2 -----
 # 拉普拉斯邊緣檢測負片
 # ----- step 3 -----
 # 檢測處理拉普拉斯檢測的負片，找出宇宙射線
-# ----- step 4 ----- 
+# ----- step 4 -----
 # 回到普通圖片，從上往下從左到右把那個區塊磨掉
+
+
 def SaveImg(image_name, img):
     cv2.imwrite(image_name, img)
 
@@ -50,6 +53,24 @@ def MarkComsic(img, row, col, val=230):
     return 0
 
 
+def laplace(img, ksize=3):
+    '''
+    自製拉普拉斯邊緣檢測
+    '''
+    height = img.shape[0]
+    width = img.shape[1]
+    output_image = np.zeros(shape=(height, width))
+    if ksize == 3:
+        filter = np.array([[0, -1, 0],
+                           [-1, 4, -1],
+                           [0, -1, 0]])
+
+    for i in range(1, height-1):
+        for j in range(1, width-1):
+            output_image[i, j] = abs(np.sum(img[i-1:i+2, j-1:j+2]*filter))
+    return np.uint8(output_image)
+
+
 def blurred(img, row, col, kernel=np.array([[1, 1, 1],
                                             [1, 0, 0],
                                             [0, 0, 0]])):
@@ -69,11 +90,11 @@ def blurred(img, row, col, kernel=np.array([[1, 1, 1],
     return np.sum(np.floor(kernel/sum * value))
 
 
-# 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3 
+# 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3
 MODE = 4
 input_path = "./data_set/img_with_cosmic/"
 output_path = "./data_set/img_output/"
-filename = "sample.png"
+filename = "data1.png"
 
 if __name__ == '__main__':
     if MODE < 3:
@@ -179,6 +200,9 @@ if __name__ == '__main__':
                             markedImgMap[i, j] = 0
                         else:
                             img[i, j] = blurred(img, i, j)
-            SaveImg("./data_set/temp.png", img)
+        #     SaveImg("./data_set/temp.png", img)
 
-        SaveImg("./data_set/img_output/"+"newImg.png", img)
+        # SaveImg("./data_set/img_output/"+"newImg.png", img)
+    img = cv2.imread("./data_set/negative_img/"+filename, 0)
+    img = laplace(img)
+    SaveImg("./"+"newImg.png", img)
