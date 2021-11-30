@@ -206,3 +206,14 @@ if __name__ == '__main__':
     img = cv2.imread("./data_set/negative_img/"+filename, 0)
     img = laplace(img)
     SaveImg("./"+"newImg.png", img)
+
+    img = cv2.imread(input_path+filename, 0)
+    sobelX = cv2.Sobel(img, cv2.CV_64F, 1, 0)
+    sobelY = cv2.Sobel(img, cv2.CV_64F, 0, 1)
+    sobelX = np.uint8(np.absolute(sobelX))
+    sobelY = np.uint8(np.absolute(sobelY))
+    sobelCombined = cv2.bitwise_or(sobelX, sobelY)
+    
+    SaveImg("./data_set/img_edge/"+"sobelx_data1.png", sobelX)
+    SaveImg("./data_set/img_edge/"+"sobely_data1.png", sobelY)
+    SaveImg("./data_set/img_edge/"+"sobelxy_data1.png", sobelCombined)
