@@ -1,13 +1,10 @@
 import cv2
 import numpy as np
-from numpy.core.fromnumeric import shape
 # ----- step 1 -----
-# 將有宇宙射線的圖片轉為負片
+# 拉普拉斯邊緣檢測影像
 # ----- step 2 -----
-# 拉普拉斯邊緣檢測負片
-# ----- step 3 -----
 # 檢測處理拉普拉斯檢測的負片，找出宇宙射線
-# ----- step 4 -----
+# ----- step 3 -----
 # 回到普通圖片，從上往下從左到右把那個區塊磨掉
 
 
@@ -30,6 +27,7 @@ def MarkComsic(img, row, col, val=230):
     '''
     想避免雜訊的話，目前想法是如果周遭有2或3個鄰居的色差小於一定值或周遭的值直接黑掉，就當宇宙射線。 \n
     如果下方的點也有一些特徵 或許可以在markedMap做不同的標記。
+
     '''
     center_value = img[row, col]
     same_color_point_count = 0
@@ -47,7 +45,7 @@ def MarkComsic(img, row, col, val=230):
                 elif img[row+i, col+j] < center_value/2:
                     diff_color_point_count += 1
         # 是宇宙射線
-        if same_color_point_count > 2 or diff_color_point_count > 3:
+        if same_color_point_count > 2:
             return 1
     # 不是宇宙射線
     return 0
@@ -91,7 +89,7 @@ def blurred(img, row, col, kernel=np.array([[1, 1, 1],
 
 
 # 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3
-MODE = 4
+MODE = 1
 input_path = "./data_set/img_with_cosmic/"
 output_path = "./data_set/img_output/"
 filename = "data1.png"
@@ -106,21 +104,19 @@ if __name__ == '__main__':
         # 標記宇宙射線位置
         markedImgMap = np.zeros(shape=(img_rows, img_cols, 1), dtype=np.uint8)
 
-        # step 1 存負片
-        nag_img = NegativeFilm(img)
-
-        # step 2 拉普拉斯邊緣檢測
-        la_img = cv2.Laplacian(nag_img, cv2.CV_16S, ksize=3)
+        # step 1 拉普拉斯邊緣檢測
+        la_img = cv2.Laplacian(img, cv2.CV_16S, ksize=3)
         la_img = cv2.convertScaleAbs(la_img)
 
-        # step 3 檢測處理拉普拉斯檢測的負片，找出宇宙射線
-        # 開3x3檢測鏡
+        # step 2 檢測處理拉普拉斯檢測的負片，找出宇宙射線
+        # 開3x3遮罩
         # 判斷中間的灰階值是否幾乎等於白色，且與周遭的值差距很大(like val>210 or something)
         # 是的話就標記他的座標
+        markedImgMap = np.zeros(shape=(img_rows, img_cols, 1), dtype=np.uint8)
         for i in range(1, img_rows-1):
             for j in range(1, img_cols-1):
-                markedImgMap[i, j] = MarkComsic(la_img, i, j, val=230)
-        # step 4 回到普通圖片，從上往下從左到右把那個區塊磨掉
+                markedImgMap[i, j] = MarkComsic(la_img, i, j, val=150)
+        # step 3 回到普通圖片，從上往下從左到右把那個區塊磨掉
         for i in range(1, img_rows-1):
             for j in range(1, img_cols-1):
                 if markedImgMap[i, j] == 1:
@@ -137,7 +133,6 @@ if __name__ == '__main__':
                     else:
                         img[i, j] = blurred(img, i, j)
         # ----- 成效不佳 -----
-        # 用[[1,1,1],[1,0,0],[0,0,0]]的過濾器來處理得到blur1, 對marked2再處理一次得到blur2, blur1比較好
         #             # 之後再對2的部分做一是磨平
         #             if markedImgMap[i-1, j] != 1:
         #                 markedImgMap[i-1, j] = 2
@@ -153,11 +148,10 @@ if __name__ == '__main__':
         #         if markedImgMap[i, j] == 2:
         #             origin_image[i, j] = blurred(origin_image, i, j)
         # --------------------
-        # 如果對blur1 當作原圖 再從step1跑一次流程，可以得到blur1_round2
         SaveImg("./data_set/img_output/"+"newImg.png", img)
     else:
         # 判斷是否為宇宙射線的閥值
-        mask_judg = 230
+        mask_judg = 180
         for n in range(2):
             # input灰階圖片
             if n == 0:
@@ -183,7 +177,7 @@ if __name__ == '__main__':
                 for j in range(1, img_cols-1):
                     markedImgMap[i, j] = MarkComsic(
                         la_img, i, j, val=mask_judg)
-            mask_judg -= 10
+            mask_judg -= 40
             # step 4 回到普通圖片，從上往下從左到右把那個區塊磨掉
             for i in range(1, img_rows-1):
                 for j in range(1, img_cols-1):
@@ -200,20 +194,17 @@ if __name__ == '__main__':
                             markedImgMap[i, j] = 0
                         else:
                             img[i, j] = blurred(img, i, j)
-        #     SaveImg("./data_set/temp.png", img)
+            SaveImg("./data_set/temp.png", img)
 
-        # SaveImg("./data_set/img_output/"+"newImg.png", img)
-    img = cv2.imread("./data_set/negative_img/"+filename, 0)
-    img = laplace(img)
-    SaveImg("./"+"newImg.png", img)
+        SaveImg("./data_set/img_output/"+"newImg.png", img)
 
-    img = cv2.imread(input_path+filename, 0)
-    sobelX = cv2.Sobel(img, cv2.CV_64F, 1, 0)
-    sobelY = cv2.Sobel(img, cv2.CV_64F, 0, 1)
-    sobelX = np.uint8(np.absolute(sobelX))
-    sobelY = np.uint8(np.absolute(sobelY))
-    sobelCombined = cv2.bitwise_or(sobelX, sobelY)
-    
-    SaveImg("./data_set/img_edge/"+"sobelx_data1.png", sobelX)
-    SaveImg("./data_set/img_edge/"+"sobely_data1.png", sobelY)
-    SaveImg("./data_set/img_edge/"+"sobelxy_data1.png", sobelCombined)
+    # Sobel算子測試
+    # img = cv2.imread(input_path+filename, 0)
+    # sobelX = cv2.Sobel(img, cv2.CV_64F, 1, 0)
+    # sobelY = cv2.Sobel(img, cv2.CV_64F, 0, 1)
+    # sobelX = np.uint8(np.absolute(sobelX))
+    # sobelY = np.uint8(np.absolute(sobelY))
+    # sobelCombined = cv2.bitwise_or(sobelX, sobelY)
+    # SaveImg("./data_set/img_edge/"+"sobelx_data1.png", sobelX)
+    # SaveImg("./data_set/img_edge/"+"sobely_data1.png", sobelY)
+    # SaveImg("./data_set/img_edge/"+"sobelxy_data1.png", sobelCombined)
