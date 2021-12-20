@@ -7,6 +7,8 @@ import numpy as np
 # ----- step 3 -----
 # 回到普通圖片，從上往下從左到右把那個區塊磨掉
 
+# 想調整模式可以調整MODE變數的初始值
+# 想要使用最小濾波器，可以調整comment out第148行，使用149行，並將MODE設定為1
 
 def SaveImg(image_name, img):
     cv2.imwrite(image_name, img)
@@ -73,7 +75,7 @@ def blurred(img, row, col, kernel=np.array([[1, 1, 1],
                                             [1, 0, 0],
                                             [0, 0, 0]])):
     '''
-    把指定像素模糊化
+    把指定像素做相鄰像素平均法
     '''
     # kernel = np.array([[2, 2, 2],
     #                    [2, 0, 1],
@@ -88,8 +90,20 @@ def blurred(img, row, col, kernel=np.array([[1, 1, 1],
     return np.sum(np.floor(kernel/sum * value))
 
 
+def min_filtering(img, row, col):
+    '''
+    最小濾波器
+    value為原始圖片中指定像素與其8鄰點
+    '''
+    value = np.array([[img[row-1, col-1], img[row-1, col], img[row-1, col+1]],
+                      [img[row, col-1], img[row, col], img[row, col+1]],
+                      [img[row+1, col-1], img[row+1, col], img[row+1, col+1]]])
+
+    return np.min(value)
+
+
 # 1=靜態kernel 2=動態生成Kernel 3=改閥值重複流程 4=MODE2+MODE3
-MODE = 1
+MODE = 4
 input_path = "./data_set/img_with_cosmic/"
 output_path = "./data_set/img_output/"
 filename = "data1.png"
@@ -132,6 +146,7 @@ if __name__ == '__main__':
                         markedImgMap[i, j] = 0
                     else:
                         img[i, j] = blurred(img, i, j)
+                        # img[i, j] = min_filtering(img, i, j)
         # ----- 成效不佳 -----
         #             # 之後再對2的部分做一是磨平
         #             if markedImgMap[i-1, j] != 1:
